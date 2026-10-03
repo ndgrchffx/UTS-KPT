@@ -48,3 +48,25 @@ def merge_result(total, part):
     for k in ("levels", "status", "ips", "users", "hours"):
         total[k].update(part[k])
     return total
+
+def analyze_file(path, on_line=None):
+    """
+    Analisis satu file log (tugas CPU-bound: regex + parsing waktu).
+
+    """
+    res = new_result()
+    with open(path, "r", encoding="utf-8") as f:
+        for line in f:
+            res["lines"] += 1
+            m = LOG_RE.match(line.rstrip("\n"))
+            if m is None:
+                res["bad"] += 1
+                continue
+            level = m["level"]
+            res["bytes"] += int(m["bytes"])
+            res["levels"][level] += 1
+            res["status"][m["status"]] += 1
+            res["ips"][m["ip"]] += 1
+            res["users"][m["user"]] += 1
+            res["hours"][datetime.strptime(m["ts"], TS_FORMAT).hour] += 1
+    return res
