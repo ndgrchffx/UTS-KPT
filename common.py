@@ -64,8 +64,8 @@ def merge_result(total, part):
 
 def analyze_file(path, on_line=None):
     """
-    Analisis satu file log (tugas CPU-bound: regex + parsing waktu).
-
+    Analisis satu file log.
+    on_line : callback opsional per baris valid (dipakai versi BUG saja).
     """
     res = new_result()
     with open(path, "r", encoding="utf-8") as f:
@@ -82,4 +82,6 @@ def analyze_file(path, on_line=None):
             res["ips"][m["ip"]] += 1
             res["users"][m["user"]] += 1
             res["hours"][datetime.strptime(m["ts"], TS_FORMAT).hour] += 1
+            if on_line is not None:
+                on_line(level)
     return res
