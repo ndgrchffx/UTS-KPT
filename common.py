@@ -27,12 +27,23 @@ LOG_RE = re.compile(
 )
 TS_FORMAT = "%Y-%m-%d %H:%M:%S"
 
+
 def banner(judul):
     garis = "=" * 60
     print(garis)
     print(judul)
     print(f"By {NAMA} ({NPM})")
     print(garis)
+
+
+def list_files(limit=None):
+    """Daftar file log (terurut nama). Berhenti dengan pesan jika belum digenerate."""
+    files = sorted(glob.glob(os.path.join(LOG_DIR, "*.log")))
+    if not files:
+        print(f"Folder '{LOG_DIR}' kosong. Jalankan dulu: python generate_logs.py")
+        sys.exit(1)
+    return files[:limit] if limit else files
+
 
 def new_result():
     return {
@@ -41,6 +52,7 @@ def new_result():
         "ips": Counter(), "users": Counter(), "hours": Counter(),
     }
 
+
 def merge_result(total, part):
     """Gabungkan hasil parsial `part` ke `total` (tahap reduce)."""
     for k in ("lines", "bad", "bytes"):
@@ -48,6 +60,7 @@ def merge_result(total, part):
     for k in ("levels", "status", "ips", "users", "hours"):
         total[k].update(part[k])
     return total
+
 
 def analyze_file(path, on_line=None):
     """
